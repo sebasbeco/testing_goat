@@ -7,12 +7,18 @@ def home_page(request):
     return render(request, 'home.html')
 
 
-def view_list(request):
-    items = Item.objects.all()
-    return render(request, 'list.html', {'items': items})
+def view_list(request, list_id):
+    todo_list = List.objects.get(id=list_id)
+    return render(request, 'list.html', {'list': todo_list})
 
 
 def new_list(request):
     todo_list = List.objects.create()
     Item.objects.create(text=request.POST['item_text'], list=todo_list)
-    return redirect('/lists/the-only-list-in-the-world/')
+    return redirect(f'/lists/{todo_list.id}/')
+
+
+def add_item(request, list_id):
+    todo_list = List.objects.get(id=list_id)
+    Item.objects.create(text=request.POST['item_text'], list=todo_list)
+    return redirect(f'/lists/{todo_list.id}/')

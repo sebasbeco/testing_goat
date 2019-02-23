@@ -64,8 +64,8 @@ class NewVisitorTest(LiveServerTestCase):
         self.enter_new_todo('Use peacock feathers to make a fly')
 
         # The page updates again, and now shows both items on her list
-        self.wait_for_row_in_list_table('1: Buy peacock feathers')
         self.wait_for_row_in_list_table('2: Use peacock feathers to make a fly')
+        self.wait_for_row_in_list_table('1: Buy peacock feathers')
 
         # Satisfied, she goes back to sleep
 
@@ -101,6 +101,6 @@ class NewVisitorTest(LiveServerTestCase):
         self.assertNotEqual(francis_list_url, edith_list_url)
 
         # Again, there is no trace of Edith's list
-        pagetext = self.browser.find_element_by_tag_name('body')
+        pagetext = self.browser.find_element_by_tag_name('body').text
         self.assertNotIn('Buy peacock feathers', pagetext)
         self.assertIn('Buy milk', pagetext)
