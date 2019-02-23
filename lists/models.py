@@ -1,3 +1,5 @@
 from django.db import models
 
-# Create your models here.
+class Item(models.Model):
+    # TODO: Support more than one list!
+    text = models.TextField(default='')
