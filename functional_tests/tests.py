@@ -37,6 +37,13 @@ class NewVisitorTest(LiveServerTestCase):
                     raise e
                 time.sleep(0.5)
 
+    def verify_inputbox_is_centered(self):
+        self.assertAlmostEqual(
+            self.inputbox.location['x'] + self.inputbox.size['width'] / 2,
+            512,
+            delta=10
+        )
+
     def test_can_start_a_list_for_one_user(self):
         # Edith has heard about a cool new online to-do app. She goes
         # to check out its homepage
@@ -104,3 +111,16 @@ class NewVisitorTest(LiveServerTestCase):
         pagetext = self.browser.find_element_by_tag_name('body').text
         self.assertNotIn('Buy peacock feathers', pagetext)
         self.assertIn('Buy milk', pagetext)
+
+    def test_layout_and_styling(self):
+        # Edith goes to the homepage
+        self.browser.get(self.live_server_url)
+        self.browser.set_window_size(1024, 768)
+
+        # She notices the input box is nicely centered
+        self.verify_inputbox_is_centered()
+
+        # She starts a new list and sees the input is nicely centered there too
+        self.enter_new_todo('testing')
+        self.wait_for_row_in_list_table('1: testing')
+        self.verify_inputbox_is_centered()
