@@ -9,6 +9,9 @@ from selenium.webdriver.common.keys import Keys
 chromedriver = r'/home/sebastian/chromedriver/chromedriver'
 MAX_WAIT = 1
 
+# TODO:
+#  key in ~/Documents/MyKeyPair.pem
+#  when enabling server, port should be 80 instead of 8000
 
 class NewVisitorTest(StaticLiveServerTestCase):
 
