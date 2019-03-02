@@ -4,9 +4,6 @@ import string
 from fabric.contrib.files import append, exists
 from fabric.api import cd, local, run
 
-# ssh-add ~/Documents/MyKeyPair.pem
-
-
 
 REPO_URL = 'https://github.com/sebasbeco/testing_goat.git'
 
