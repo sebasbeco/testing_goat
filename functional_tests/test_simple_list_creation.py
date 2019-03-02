@@ -1,55 +1,9 @@
-import os
-import time
-
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
-from selenium.common.exceptions import WebDriverException
-from selenium.webdriver.common.keys import Keys
 
-chromedriver = r'/home/sebastian/chromedriver/chromedriver'
-MAX_WAIT = 1
+from .base import FunctionalTest, chromedriver
 
-# TODO:
-#  key in ~/Documents/MyKeyPair.pem
-#  when enabling server, port should be 80 instead of 8000
 
-class NewVisitorTest(StaticLiveServerTestCase):
-
-    def setUp(self):
-        self.browser = webdriver.Chrome(chromedriver)
-        staging_server = os.environ.get('STAGING_SERVER')
-        if staging_server:
-            self.live_server_url = 'http://' + staging_server
-
-    def tearDown(self):
-        self.browser.quit()
-
-    @property
-    def inputbox(self):
-        return self.browser.find_element_by_id('id_new_item')
-
-    def enter_new_todo(self, text):
-        self.inputbox.send_keys(text + Keys.ENTER)
-
-    def wait_for_row_in_list_table(self, row_text):
-        start_time = time.time()
-        while True:
-            try:
-                table = self.browser.find_element_by_id('id_list_table')
-                rows = table.find_elements_by_tag_name('tr')
-                self.assertIn(row_text, [row.text for row in rows])
-                return
-            except (AssertionError, WebDriverException) as e:
-                if time.time() - start_time > MAX_WAIT:
-                    raise e
-                time.sleep(0.5)
-
-    def verify_inputbox_is_centered(self):
-        self.assertAlmostEqual(
-            self.inputbox.location['x'] + self.inputbox.size['width'] / 2,
-            512,
-            delta=10
-        )
+class NewVisitorTest(FunctionalTest):
 
     def test_can_start_a_list_for_one_user(self):
         # Edith has heard about a cool new online to-do app. She goes
@@ -118,16 +72,3 @@ class NewVisitorTest(StaticLiveServerTestCase):
         pagetext = self.browser.find_element_by_tag_name('body').text
         self.assertNotIn('Buy peacock feathers', pagetext)
         self.assertIn('Buy milk', pagetext)
-
-    def test_layout_and_styling(self):
-        # Edith goes to the homepage
-        self.browser.get(self.live_server_url)
-        self.browser.set_window_size(1024, 768)
-
-        # She notices the input box is nicely centered
-        self.verify_inputbox_is_centered()
-
-        # She starts a new list and sees the input is nicely centered there too
-        self.enter_new_todo('testing')
-        self.wait_for_row_in_list_table('1: testing')
-        self.verify_inputbox_is_centered()
