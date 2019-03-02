@@ -4,7 +4,6 @@ from django.shortcuts import render, redirect
 from lists.models import Item, List
 
 # FIXME:
-#  remove hardcoded URLs
 #  remove duplicate validation logic
 
 def home_page(request):
@@ -20,7 +19,7 @@ def view_list(request, list_id):
             item = Item(text=request.POST['item_text'], list=todolist)
             item.full_clean()
             item.save()
-            return redirect(f'/lists/{todolist.id}/')
+            return redirect(todolist)
         except ValidationError:
             error = "You can't have an empty list item"
 
@@ -37,4 +36,4 @@ def new_list(request):
         todolist.delete()
         error = "You can't have an empty list item"
         return render(request, 'home.html', {'error': error})
-    return redirect(f'/lists/{todolist.id}/')
+    return redirect(todolist)
