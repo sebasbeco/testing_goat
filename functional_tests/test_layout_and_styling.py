@@ -13,5 +13,5 @@ class LayoutAndStyling(FunctionalTest):
 
         # She starts a new list and sees the input is nicely centered there too
         self.enter_new_todo('testing')
-        self.wait_for_row_in_list_table('1: testing')
+        self.verify_todo_in_list('1: testing')
         self.verify_inputbox_is_centered()

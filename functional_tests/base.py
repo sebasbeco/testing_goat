@@ -21,13 +21,13 @@ class FunctionalTest(StaticLiveServerTestCase):
         self.browser.quit()
 
     @property
-    def inputbox(self):
+    def newitem_inputbox(self):
         return self.browser.find_element_by_id('id_new_item')
 
     def enter_new_todo(self, text):
-        self.inputbox.send_keys(text + Keys.ENTER)
+        self.newitem_inputbox.send_keys(text + Keys.ENTER)
 
-    def wait_for_row_in_list_table(self, row_text):
+    def verify_todo_in_list(self, row_text):
         start_time = time.time()
         while True:
             try:
@@ -42,7 +42,17 @@ class FunctionalTest(StaticLiveServerTestCase):
 
     def verify_inputbox_is_centered(self):
         self.assertAlmostEqual(
-            self.inputbox.location['x'] + self.inputbox.size['width'] / 2,
+            self.newitem_inputbox.location['x'] + self.newitem_inputbox.size['width'] / 2,
             512,
             delta=10
         )
+
+    def wait_for(self, fn):
+        start_time = time.time()
+        while True:
+            try:
+                return fn()
+            except (AssertionError, WebDriverException) as e:
+                if time.time() - start_time > MAX_WAIT:
+                    raise e
+                time.sleep(0.5)
