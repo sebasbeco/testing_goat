@@ -1,9 +1,7 @@
 from django.test import TestCase
 
-from lists.forms import ItemForm
+from lists.forms import ItemForm, EMPTY_ITEM_ERROR
 
-
-EMPTY_ITEM_ERROR = "You can't have an empty list item"
 
 class ItemFormTest(TestCase):
 
