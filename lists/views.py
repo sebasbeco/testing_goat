@@ -1,11 +1,8 @@
-from django.core.exceptions import ValidationError
 from django.shortcuts import render, redirect
 
 from lists.forms import ItemForm
 from lists.models import Item, List
 
-# FIXME:
-#  remove duplicate validation logic
 
 def home_page(request):
     return render(request, 'home.html', {'form': ItemForm()})
@@ -13,28 +10,20 @@ def home_page(request):
 
 def view_list(request, list_id):
     todolist = List.objects.get(id=list_id)
-    error = None
-
+    form = ItemForm()
     if request.method == 'POST':
-        try:
-            item = Item(text=request.POST['text'], list=todolist)
-            item.full_clean()
-            item.save()
+        form = ItemForm(data=request.POST)
+        if form.is_valid():
+            Item.objects.create(text=request.POST['text'], list=todolist)
             return redirect(todolist)
-        except ValidationError:
-            error = "You can't have an empty list item"
-
-    return render(request, 'list.html', {'list': todolist, 'error': error})
+    return render(request, 'list.html', {'list': todolist, 'form': form})
 
 
 def new_list(request):
-    todolist = List.objects.create()
-    item = Item(text=request.POST['text'], list=todolist)
-    try:
-        item.full_clean()
-        item.save()
-    except ValidationError:
-        todolist.delete()
-        error = "You can't have an empty list item"
-        return render(request, 'home.html', {'error': error})
-    return redirect(todolist)
+    form = ItemForm(data=request.POST)
+    if form.is_valid():
+        todolist = List.objects.create()
+        Item.objects.create(text=request.POST['text'], list=todolist)
+        return redirect(todolist)
+    else:
+        return render(request, 'home.html', {'form': form})
