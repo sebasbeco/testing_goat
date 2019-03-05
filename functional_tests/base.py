@@ -22,7 +22,7 @@ class FunctionalTest(StaticLiveServerTestCase):
 
     @property
     def newitem_inputbox(self):
-        return self.browser.find_element_by_id('id_new_item')
+        return self.browser.find_element_by_id('id_text')
 
     def enter_new_todo(self, text):
         self.newitem_inputbox.send_keys(text + Keys.ENTER)
