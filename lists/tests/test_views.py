@@ -1,9 +1,7 @@
-from unittest import skip
-
 from django.test import TestCase
 from django.utils.html import escape
 
-from lists.forms import ItemForm, EMPTY_ITEM_ERROR, DUPLICATE_ITEM_ERROR
+from lists.forms import ExistingListItemForm, EMPTY_ITEM_ERROR, DUPLICATE_ITEM_ERROR, ItemForm
 from lists.models import Item, List
 
 
@@ -86,7 +84,7 @@ class ListViewTest(TestCase):
 
     def test_for_invalid_input_passes_form_to_template(self):
         response = self.post_empty_todo()
-        self.assertIsInstance(response.context['form'], ItemForm)
+        self.assertIsInstance(response.context['form'], ExistingListItemForm)
 
     def test_for_invalid_input_shows_error_on_page(self):
         response = self.post_empty_todo()
@@ -94,10 +92,9 @@ class ListViewTest(TestCase):
 
     def test_displays_item_form(self):
         response = self.post_empty_todo()
-        self.assertIsInstance(response.context['form'], ItemForm)
+        self.assertIsInstance(response.context['form'], ExistingListItemForm)
         self.assertContains(response, 'name="text"')
 
-    @skip
     def test_duplicate_item_validation_errors_end_up_on_lists_page(self):
         todolist = List.objects.create()
         Item.objects.create(list=todolist, text='textey')
