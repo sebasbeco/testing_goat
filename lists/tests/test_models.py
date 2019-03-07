@@ -3,8 +3,14 @@ from django.test import TestCase
 
 from ..models import Item, List
 
+class ListModelTest(TestCase):
 
-class ListAndItemModelsTest(TestCase):
+    def test_get_absolute_url(self):
+        todolist = List.objects.create()
+        self.assertEqual(todolist.get_absolute_url(), f'/lists/{todolist.id}/')
+
+
+class ItemModelTest(TestCase):
 
     def test_cannot_save_empty_list_items(self):
         todolist = List.objects.create()
@@ -13,31 +19,41 @@ class ListAndItemModelsTest(TestCase):
             item.save()
             item.full_clean()
 
-    def test_saving_and_retrieving_items(self):
-        todo_list = List()
-        todo_list.save()
+    def test_default_text(self):
+        item = Item()
+        self.assertEqual(item.text, '')
 
-        item1 = Item()
-        item1.text = 'The first (ever) list item'
-        item1.list = todo_list
-        item1.save()
-
-        item2 = Item()
-        item2.text = 'Item the second'
-        item2.list = todo_list
-        item2.save()
-
-        saved_list = List.objects.first()
-        self.assertEqual(saved_list, todo_list)
-
-        saved_items = Item.objects.all()
-        self.assertEqual(saved_items.count(), 2)
-
-        self.assertEqual(saved_items[0].text, 'The first (ever) list item')
-        self.assertEqual(saved_items[0].list, todo_list)
-        self.assertEqual(saved_items[1].text, 'Item the second')
-        self.assertEqual(saved_items[1].list, todo_list)
-
-    def test_get_absolute_url(self):
+    def test_item_is_related_to_list(self):
         todolist = List.objects.create()
-        self.assertEqual(todolist.get_absolute_url(), f'/lists/{todolist.id}/')
+        item = Item()
+        item.list = todolist
+        item.save()
+        self.assertIn(item, todolist.item_set.all())
+
+    def test_duplicate_items_are_invalid(self):
+        todolist = List.objects.create()
+        Item.objects.create(list=todolist, text='bla')
+        with self.assertRaises(ValidationError):
+            item = Item(list=todolist, text='bla')
+            item.full_clean()
+
+    def test_CAN_save_same_item_to_different_lists(self):
+        list1 = List.objects.create()
+        list2 = List.objects.create()
+        Item.objects.create(list=list1, text='bla')
+        item = Item(list=list2, text='bla')
+        item.full_clean()   # should not raise
+
+    def test_list_ordering(self):
+        todolist = List.objects.create()
+        item1 = Item.objects.create(list=todolist, text='1')
+        item2 = Item.objects.create(list=todolist, text='2')
+        item3 = Item.objects.create(list=todolist, text='3')
+        self.assertEqual(
+            list(Item.objects.all()),
+            [item1, item2, item3]
+        )
+
+    def test_string_representation(self):
+        item = Item(text='some text')
+        self.assertEqual(str(item), 'some text')

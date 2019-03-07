@@ -33,3 +33,18 @@ class ItemValidationTest(FunctionalTest):
         self.enter_new_todo('Make tea')
         self.verify_todo_in_list('1: Buy milk')
         self.verify_todo_in_list('2: Make tea')
+
+    def test_cannot_add_duplicate_items(self):
+        # Edith goes to the homepage and starts a new list
+        self.browser.get(self.live_server_url)
+        self.enter_new_todo('Buy wellies')
+        self.verify_todo_in_list('1: Buy wellies')
+
+        # She accidentally tries to enter a duplicate item
+        self.enter_new_todo('Buy wellies')
+
+        # She sees a helpful error message
+        self.wait_for(lambda: self.assertEqual(
+            self.browser.find_element_by_css_selector('.has-error').text,
+            "You've already got this in your list"
+        ))
