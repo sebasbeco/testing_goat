@@ -45,6 +45,29 @@ class ItemValidationTest(FunctionalTest):
 
         # She sees a helpful error message
         self.wait_for(lambda: self.assertEqual(
-            self.browser.find_element_by_css_selector('.has-error').text,
+            self.get_error_element().text,
             "You've already got this in your list"
         ))
+
+    def test_error_messages_are_cleared_on_input(self):
+        # Edith starts a list and causes a validation error
+        self.browser.get(self.live_server_url)
+        self.enter_new_todo('Banter too thick')
+        self.verify_todo_in_list('1: Banter too thick')
+        self.enter_new_todo('Banter too thick')
+
+        self.wait_for(lambda: self.assertTrue(
+            self.get_error_element().is_displayed())
+        )
+
+        # She starts typing in the inputbox to clear the error
+        self.newitem_inputbox.send_keys('a')
+
+        # She is pleased to see that the error message disappears
+        self.wait_for(lambda: self.assertFalse(
+            self.get_error_element().is_displayed())
+        )
+
+    def get_error_element(self):
+        return self.browser.find_element_by_css_selector('.has-error')
+
